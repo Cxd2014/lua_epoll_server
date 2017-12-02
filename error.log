@@ -1,0 +1,36 @@
+2017-12-01 02:02:36 (epoll.c:33)[debug] >> server ip: 192.168.152.129 port: 80
+2017-12-01 02:02:36 (epoll.c:47)[die] >> server socket bind error: Address already in use
+2017-12-01 02:03:00 (epoll.c:33)[debug] >> server ip: 192.168.152.129 port: 80
+2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =1
+2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
+2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =2
+2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
+2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
+2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =3
+2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
+2017-12-01 02:03:12 (http.c:62)[debug] >> task_id = HTTPGET:/koala.jpg
+2017-12-01 02:03:12 (libtask.c:74)[debug] >> No such task: HTTPGET:/koala.jpg
+2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
+2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =2
+2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
+2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
+2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =1
+2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
+2017-12-01 02:03:32 (epoll.c:178)[debug] >> epoll_loop nfds =3
+2017-12-01 02:03:32 (http.c:154)[error] >> parse http request url error
+http_buf = 
+2017-12-01 02:03:32 (http.c:154)[error] >> parse http request url error
+http_buf = 
+2017-12-01 02:03:32 (http.c:154)[error] >> parse http request url error
+http_buf = 
+2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =1
+2017-12-01 02:03:41 (epoll.c:92)[debug] >> connect from 192.168.152.1
+2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =2
+2017-12-01 02:03:41 (epoll.c:92)[debug] >> connect from 192.168.152.1
+2017-12-01 02:03:41 (http.c:62)[debug] >> task_id = HTTPGET:/koala.jpg
+2017-12-01 02:03:41 (libtask.c:74)[debug] >> No such task: HTTPGET:/koala.jpg
+2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =1
+2017-12-01 02:03:41 (epoll.c:156)[info] >> connect_write
+2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =1
+2017-12-01 02:03:41 (http.c:62)[debug] >> task_id = HTTPGET:/favicon.ico
+2017-12-01 02:03:41 (libtask.c:74)[debug] >> No such task: HTTPGET:/favicon.ico

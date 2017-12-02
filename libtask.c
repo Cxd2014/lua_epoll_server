@@ -71,7 +71,7 @@ int task_run_executor(const char *id, struct http_request *request)
             }
         }
     } else {
-        log_error("Error! No such task: %s\n", id);
+        log_debug("No such task: %s", id);
         return -1;
     }
 
@@ -130,7 +130,7 @@ static int task_replay(lua_State *L)
         const char *type = luaL_checkstring(L, -3);
         const char *code = luaL_checkstring(L, -4);
 
-        combie_http_replay(task->task->request, code, type, location, body);
+        combie_http_lua_replay(task->task->request, code, type, location, body);
         lua_settop(L, -5);
     } else {
         log_error("task replay should pass a table");

@@ -31,7 +31,7 @@ static void init_luas(char *dir)
 	DIR *dp;
 	struct dirent *ep;
 	dp=opendir(dir);
-	char fpath[64] = {0};
+	char fpath[128] = {0};
 	strcpy(fpath, dir);
 	strcat(fpath, "/");
 	int len = strlen(fpath);

@@ -12,7 +12,8 @@
 #include "epoll.h"
 #include "main.h"
 
-static void setnonblocking(int sock)
+/* 设置套接字为非阻塞模式 */
+static void set_noblock(int sock)
 {
 	int opts;
 	opts = fcntl(sock, F_GETFL);
@@ -49,7 +50,7 @@ static int init_server_socket(char *ip, char *port)
     if (ret < 0)
         log_die("server socket listen error");
 
-    setnonblocking(listenfd);
+    set_noblock(listenfd);
 
     return listenfd;
 }
@@ -66,7 +67,7 @@ static void update_events(int efd, int lfd, int events, int op)
     }
 }
 
-static void connect_close(int efd, int fd)
+void connect_close(int efd, int fd)
 {
     struct epoll_event ev;
     ev.events = 0;
@@ -89,16 +90,40 @@ static void connect_accept(int efd, int fd)
     }
 
     log_debug("connect from %s", inet_ntoa(client_addr.sin_addr));
-    setnonblocking(cfd);
+    //set_noblock(cfd);
     update_events(efd, cfd, EPOLLIN|EPOLLOUT|EPOLLET, EPOLL_CTL_ADD);
 }
 
-void epoll_write_and_close(struct http_request *request)
+int send_http_file(struct http_request *request, char *file_path)
+{
+    /* 打开要发送的文件 */
+    int fd = open(file_path, O_RDONLY);
+    if (fd < 0) {
+        log_perror("open error %s", file_path);
+        return fd;
+    }
+    
+    /* 在发送请求文件
+     * 注意：当设置为非阻塞模式的时候，发送大文件的时候会出现
+     * 缓冲区被写满，导致发送文件失败
+     */
+    char buf[2048] = {0};
+    int size = 0;
+    while ((size = read(fd, buf, 2048)) > 0) {
+        if (write(request->fd, buf, size) < 0) {
+            log_perror("write error");
+            return -1;
+        }
+        memset(buf, 0, 2048);
+    }
+    return 0;
+}
+
+void epoll_write(struct http_request *request)
 {
     if (write(request->fd, request->replay_buf, request->replay_len) < 0) {
         log_perror("write error, fd = %d", request->fd);   
     }
-    connect_close(request->efd, request->fd);
 }
 
 static void connect_read(int efd, int fd)

@@ -3,7 +3,7 @@
 
 #include "hash.h"
 
-#define MAX_REPLAY_SIZE 1024
+#define MAX_REPLAY_SIZE 2048
 
 struct http_request {
     int fd;
@@ -26,6 +26,6 @@ struct http_request *http_request_malloc(char *buf, int len, int fd, int efd);
 void http_request_free(struct http_request *request);
 
 int parse_http_request(struct http_request *request);
-void combie_http_replay(struct http_request *request, const char *code, const char *type, const char *location, const char *body);
+void combie_http_lua_replay(struct http_request *request, const char *code, const char *type, const char *location, const char *body);
 
 #endif
