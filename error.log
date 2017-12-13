@@ -1,36 +1,54 @@
-2017-12-01 02:02:36 (epoll.c:33)[debug] >> server ip: 192.168.152.129 port: 80
-2017-12-01 02:02:36 (epoll.c:47)[die] >> server socket bind error: Address already in use
-2017-12-01 02:03:00 (epoll.c:33)[debug] >> server ip: 192.168.152.129 port: 80
-2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =1
-2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
-2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =2
-2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
-2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
-2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =3
-2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
-2017-12-01 02:03:12 (http.c:62)[debug] >> task_id = HTTPGET:/koala.jpg
-2017-12-01 02:03:12 (libtask.c:74)[debug] >> No such task: HTTPGET:/koala.jpg
-2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
-2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =2
-2017-12-01 02:03:12 (epoll.c:92)[debug] >> connect from 192.168.152.1
-2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
-2017-12-01 02:03:12 (epoll.c:178)[debug] >> epoll_loop nfds =1
-2017-12-01 02:03:12 (epoll.c:156)[info] >> connect_write
-2017-12-01 02:03:32 (epoll.c:178)[debug] >> epoll_loop nfds =3
-2017-12-01 02:03:32 (http.c:154)[error] >> parse http request url error
-http_buf = 
-2017-12-01 02:03:32 (http.c:154)[error] >> parse http request url error
-http_buf = 
-2017-12-01 02:03:32 (http.c:154)[error] >> parse http request url error
-http_buf = 
-2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =1
-2017-12-01 02:03:41 (epoll.c:92)[debug] >> connect from 192.168.152.1
-2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =2
-2017-12-01 02:03:41 (epoll.c:92)[debug] >> connect from 192.168.152.1
-2017-12-01 02:03:41 (http.c:62)[debug] >> task_id = HTTPGET:/koala.jpg
-2017-12-01 02:03:41 (libtask.c:74)[debug] >> No such task: HTTPGET:/koala.jpg
-2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =1
-2017-12-01 02:03:41 (epoll.c:156)[info] >> connect_write
-2017-12-01 02:03:41 (epoll.c:178)[debug] >> epoll_loop nfds =1
-2017-12-01 02:03:41 (http.c:62)[debug] >> task_id = HTTPGET:/favicon.ico
-2017-12-01 02:03:41 (libtask.c:74)[debug] >> No such task: HTTPGET:/favicon.ico
+2017-12-13 05:10:36 (epoll.c:34)[debug] >> server ip: 192.168.175.130 port: 80
+2017-12-13 05:10:57 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:10:57 (epoll.c:99)[debug] >> connect from 192.168.175.1 fd = 7
+2017-12-13 05:10:57 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:10:57 (epoll.c:157)[info] >> No file to send ! efd = 6, fd = 7
+2017-12-13 05:10:57 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:10:57 (epoll.c:99)[debug] >> connect from 192.168.175.1 fd = 8
+2017-12-13 05:10:57 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:10:57 (epoll.c:157)[info] >> No file to send ! efd = 6, fd = 8
+2017-12-13 05:10:57 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:10:57 (http.c:66)[debug] >> task_id = HTTPGET:/
+2017-12-13 05:10:57 (libtask.c:74)[debug] >> No such task: HTTPGET:/
+2017-12-13 05:10:57 (http.c:91)[debug] >> send file /
+2017-12-13 05:10:57 (epoll.c:114)[debug] >> size = 666, offset = 666, send_size = 0
+2017-12-13 05:10:57 (http.c:94)[debug] >> sendfile finish!
+2017-12-13 05:10:57 (http.c:174)[debug] >> http_request_free finish 2
+2017-12-13 05:10:58 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:10:58 (http.c:66)[debug] >> task_id = HTTPGET:/favicon.ico
+2017-12-13 05:10:58 (libtask.c:74)[debug] >> No such task: HTTPGET:/favicon.ico
+2017-12-13 05:10:58 (http.c:91)[debug] >> send file /favicon.ico
+2017-12-13 05:10:58 (epoll.c:114)[debug] >> size = 67646, offset = 67646, send_size = 0
+2017-12-13 05:10:58 (http.c:94)[debug] >> sendfile finish!
+2017-12-13 05:10:58 (http.c:174)[debug] >> http_request_free finish 2
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:99)[debug] >> connect from 192.168.175.1 fd = 7
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:157)[info] >> No file to send ! efd = 6, fd = 7
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:99)[debug] >> connect from 192.168.175.1 fd = 8
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =2
+2017-12-13 05:12:22 (epoll.c:99)[debug] >> connect from 192.168.175.1 fd = 9
+2017-12-13 05:12:22 (epoll.c:157)[info] >> No file to send ! efd = 6, fd = 8
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =2
+2017-12-13 05:12:22 (epoll.c:99)[debug] >> connect from 192.168.175.1 fd = 10
+2017-12-13 05:12:22 (epoll.c:157)[info] >> No file to send ! efd = 6, fd = 9
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:157)[info] >> No file to send ! efd = 6, fd = 10
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (http.c:66)[debug] >> task_id = HTTPGET:/koala.jpg
+2017-12-13 05:12:22 (libtask.c:74)[debug] >> No such task: HTTPGET:/koala.jpg
+2017-12-13 05:12:22 (http.c:91)[debug] >> send file /koala.jpg
+2017-12-13 05:12:22 (epoll.c:114)[debug] >> size = 141620, offset = 141620, send_size = 639211
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:114)[debug] >> size = 138700, offset = 280320, send_size = 500511
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:114)[debug] >> size = 128480, offset = 408800, send_size = 372031
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:114)[debug] >> size = 128480, offset = 537280, send_size = 243551
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:114)[debug] >> size = 128480, offset = 665760, send_size = 115071
+2017-12-13 05:12:22 (epoll.c:180)[debug] >> epoll_loop nfds =1
+2017-12-13 05:12:22 (epoll.c:114)[debug] >> size = 115071, offset = 780831, send_size = 0
+2017-12-13 05:12:22 (epoll.c:147)[debug] >> sendfile finish!
+2017-12-13 05:12:22 (http.c:174)[debug] >> http_request_free finish 2
