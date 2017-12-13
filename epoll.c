@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/sendfile.h>
 
 #include "epoll.h"
 #include "main.h"
@@ -55,13 +56,19 @@ static int init_server_socket(char *ip, char *port)
     return listenfd;
 }
 
-static void update_events(int efd, int lfd, int events, int op)
+static void update_events(int efd, int lfd, int events, int op, struct http_request *request)
 {
     struct epoll_event ev;
     memset(&ev, 0, sizeof(ev));
 
     ev.events = events; 
-    ev.data.fd = lfd;
+    
+    if (request != NULL) {
+        ev.data.ptr = request;
+    } else {
+        ev.data.fd = lfd;
+    }
+        
     if (epoll_ctl(efd, op, lfd, &ev) == -1) {
         log_perror("epoll_ctl error");
     }
@@ -89,34 +96,23 @@ static void connect_accept(int efd, int fd)
         connect_close(efd, fd);
     }
 
-    log_debug("connect from %s", inet_ntoa(client_addr.sin_addr));
-    //set_noblock(cfd);
-    update_events(efd, cfd, EPOLLIN|EPOLLOUT|EPOLLET, EPOLL_CTL_ADD);
+    log_debug("connect from %s fd = %d", inet_ntoa(client_addr.sin_addr), cfd);
+    set_noblock(cfd);
+    
+    struct http_request *request = http_request_malloc(cfd, efd);
+    update_events(efd, cfd, EPOLLIN|EPOLLOUT|EPOLLET, EPOLL_CTL_ADD, request);
 }
 
-int send_http_file(struct http_request *request, char *file_path)
+int send_http_file(struct http_request *request)
 {
-    /* 打开要发送的文件 */
-    int fd = open(file_path, O_RDONLY);
-    if (fd < 0) {
-        log_perror("open error %s", file_path);
-        return fd;
-    }
-    
-    /* 在发送请求文件
-     * 注意：当设置为非阻塞模式的时候，发送大文件的时候会出现
-     * 缓冲区被写满，导致发送文件失败
-     */
-    char buf[2048] = {0};
     int size = 0;
-    while ((size = read(fd, buf, 2048)) > 0) {
-        if (write(request->fd, buf, size) < 0) {
-            log_perror("write error");
-            return -1;
-        }
-        memset(buf, 0, 2048);
+    if ((size = sendfile(request->fd, request->file_fd, &request->offset, request->send_size)) < 0) {
+        log_perror("sendfile() failed fd = %d", request->fd);  
+        return -1; 
     }
-    return 0;
+    request->send_size = request->send_size - size;
+    log_debug("size = %d, offset = %ld, send_size = %d", size, request->offset, request->send_size);
+    return size;
 }
 
 void epoll_write(struct http_request *request)
@@ -126,28 +122,40 @@ void epoll_write(struct http_request *request)
     }
 }
 
-static void connect_read(int efd, int fd)
+static void connect_read(struct http_request *request)
 {
-    int size = 0;
-    char buf[BUF_SIZE] = {0};
-
-    if((size = read(fd, buf, BUF_SIZE)) < 0) {
-        log_perror("read buf error"); 
-        connect_close(efd, fd); 
+    request->http_buf = (char *)zero_alloc(BUF_SIZE + 1);
+    if((request->http_len = read(request->fd, request->http_buf, BUF_SIZE)) <= 0) {
+        log_perror("read buf error fd = %d", request->fd); 
+        connect_close(request->efd, request->fd); 
+        http_request_free(request);
         return;
     }
 
-    struct http_request *request = http_request_malloc(buf, size, fd, efd);
     if (parse_http_request(request) < 0) {
-        connect_close(efd, fd);
+        connect_close(request->efd, request->fd);
         http_request_free(request);
     }
         
 }
 
-static void connect_write(int efd, int fd)
+static void connect_write(struct http_request *request)
 {
-    log_info("connect_write");
+    if (request->file_fd) {
+        int ret = send_http_file(request);
+        if (request->send_size == 0) {
+            log_debug("sendfile finish!");
+        } else if (ret < 0) {
+            log_debug("sendfile fail!");
+        } else { /* 文件还没有发送完成 等下次epoll写事件再接着发送 */
+            return;
+        }
+        /* 文件发送完，或者发送失败都需要释放资源 */
+        connect_close(request->efd, request->fd);     
+        http_request_free(request);
+    } else {
+        log_info("No file to send ! efd = %d, fd = %d", request->efd, request->fd);
+    }
 }
 
 void epoll_loop(char *ip, char *port)
@@ -159,7 +167,7 @@ void epoll_loop(char *ip, char *port)
     if (epollfd < 0) 
         log_die("epoll create error");
       
-    update_events(epollfd, listenfd, EPOLLIN, EPOLL_CTL_ADD);
+    update_events(epollfd, listenfd, EPOLLIN, EPOLL_CTL_ADD, NULL);
     
     struct epoll_event events[MAX_EVENTS];
     int n = 0, nfds = 0;
@@ -172,17 +180,18 @@ void epoll_loop(char *ip, char *port)
         log_debug("epoll_loop nfds =%d", nfds);
 
         for (n = 0; n < nfds; n++) {
-            int fd = events[n].data.fd;
             int ev = events[n].events;
+            struct http_request *request = events[n].data.ptr;
+            int fd = events[n].data.fd;
 
             if (ev & EPOLLIN) {
-                if (fd == listenfd){
+                if (fd == listenfd){          
                     connect_accept(epollfd, fd);
-                } else {
-                    connect_read(epollfd, fd);
+                } else {         
+                    connect_read(request);
                 }
             } else if (ev & EPOLLOUT) {
-                connect_write(epollfd, fd);
+                connect_write(request);
             } else {
                 log_error("unknown event");
             }

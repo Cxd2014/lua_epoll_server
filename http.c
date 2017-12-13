@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "http.h"
 #include "epoll.h"
@@ -35,9 +38,10 @@ static int combie_http_file_replay(struct http_request *request, char *file_path
         log_perror("stat error %s", file_path);
         return -1;  
     }
-    
+    request->send_size = (int)stat_info.st_size;
+
     char file_type[32] = {0};
-    char *type = strrchr(request->uri, '.');
+    char *type = strrchr(file_path, '.');
     if (type == NULL)
         strcpy(file_type, "Unknow/Type");
     else if (strcmp(type, ".html") == 0)
@@ -64,16 +68,38 @@ static void do_request(char *method, struct http_request *request)
     if (task_run_executor(task_id, request) < 0) {  /* Lua中没有注册此url，查找HTML目录下面有没有此文件 */
        
         char file_path[128] = HTML_PATH;
-        strncat(file_path, request->uri, 128);
+        if (strcmp(request->uri, "/") == 0)
+            strncat(file_path, "/index.html", 128);
+        else
+            strncat(file_path, request->uri, 128);
 
         if(combie_http_file_replay(request, file_path) < 0) { /* HTML目录下面没有此文件，返回404 */
             request->replay_len = strlen(NOT_FOUND);
             request->replay_buf = (char *)zero_alloc(request->replay_len + 1);
             strncpy(request->replay_buf, NOT_FOUND, request->replay_len);
-            epoll_write(request);
+            goto write_and_free;
         } else {
             epoll_write(request); /* 先发送http头部信息 */
-            send_http_file(request, file_path);
+
+            /* 打开要发送的文件 */
+            request->offset = 0;
+            request->file_fd = open(file_path, O_RDONLY);
+            if (request->file_fd < 0) {
+                log_perror("open error %s", file_path);
+                goto free_source;
+            }
+            log_debug("send file %s", request->uri);
+            int ret = send_http_file(request);
+            if (request->send_size == 0) {
+                log_debug("sendfile finish!");
+            } else if (ret < 0) {
+                log_debug("sendfile fail!");
+            } else { /* 文件还没有发送完成，等下次epoll写事件，在connect_write中继续发送 */
+                return;
+            }
+
+            /* 文件发送完，或者发送失败都需要释放资源 */
+            goto free_source;
         }
     } else {
         /* 如果Lua没有返回，就返回一个默认页面 */
@@ -82,9 +108,12 @@ static void do_request(char *method, struct http_request *request)
             request->replay_buf = (char *)zero_alloc(request->replay_len + 1);
             strncpy(request->replay_buf, NO_REPALY, request->replay_len);
         }
-        epoll_write(request);
+        goto write_and_free;
     }
-    
+
+write_and_free:
+    epoll_write(request);
+free_source:
     connect_close(request->efd, request->fd);
     http_request_free(request);
 }
@@ -112,16 +141,12 @@ static void parse_request_line(char *head,struct http_request *request)
 
 }
 
-struct http_request *http_request_malloc(char *buf, int len, int fd, int efd)
+struct http_request *http_request_malloc(int fd, int efd)
 {
     struct http_request *request = (struct http_request *)zero_alloc(sizeof(struct http_request));
 
-    request->http_len = len;
     request->fd = fd;
     request->efd = efd;
-
-    request->http_buf = (char *)zero_alloc(len + 2);
-    strncpy(request->http_buf, buf, len);
 
     request->param = xhash_create(NULL, NULL);
     return request;
@@ -129,15 +154,24 @@ struct http_request *http_request_malloc(char *buf, int len, int fd, int efd)
 
 void http_request_free(struct http_request *request)
 {
+    int index = 0;
     xhash_destroy(request->param);
     free(request->http_buf);
 
     if (request->replay_buf) {
         free(request->replay_buf);
+        index++;
+    }
+
+    if (request->file_fd > 0) {
+        close(request->file_fd);
+        index++;
     }
 
     free(request);
     request = NULL;
+
+    log_debug("http_request_free finish %d", index);
 }
 
 int parse_http_request(struct http_request *request)
@@ -147,8 +181,6 @@ int parse_http_request(struct http_request *request)
     char *value = NULL;
     char *lines = NULL;
     
-    //log_debug("%s",request->http_buf);
-
     pos = strstr(request->http_buf, "\r\n\r\n");
     if (pos == NULL){
         log_error("parse http request url error\nhttp_buf = %s",request->http_buf);

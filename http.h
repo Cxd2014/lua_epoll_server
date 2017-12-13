@@ -20,9 +20,13 @@ struct http_request {
     char *version;
     char *http_body;
     hash_st *param;
+
+    int file_fd;
+    long int send_size;
+    long int offset;
 };
 
-struct http_request *http_request_malloc(char *buf, int len, int fd, int efd);
+struct http_request *http_request_malloc(int fd, int efd);
 void http_request_free(struct http_request *request);
 
 int parse_http_request(struct http_request *request);
