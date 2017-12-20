@@ -110,7 +110,7 @@ int send_http_file(struct http_request *request)
         log_perror("sendfile() failed fd = %d", request->fd);  
         return -1; 
     }
-    request->send_size = request->send_size - size;
+    request->send_size = request->send_size - size; /* 减去已经发送的数据，剩下还需要发送的数据 */
     log_debug("size = %d, offset = %ld, send_size = %d", size, request->offset, request->send_size);
     return size;
 }
