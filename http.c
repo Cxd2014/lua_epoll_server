@@ -181,6 +181,7 @@ int parse_http_request(struct http_request *request)
     char *value = NULL;
     char *lines = NULL;
     
+    /* 首先找到请求头和请求体 */
     pos = strstr(request->http_buf, "\r\n\r\n");
     if (pos == NULL){
         log_error("parse http request url error\nhttp_buf = %s",request->http_buf);
@@ -191,10 +192,11 @@ int parse_http_request(struct http_request *request)
     request->http_body = pos + sizeof("\r\n\r\n") + 1;
     http_head = request->http_buf;
 
-    /* 解析请求行 */
+    /* 解析请求行和URL中携带的参数 */
     lines = strtok_r(http_head, "\r\n", &http_head);
     parse_request_line(lines,request);
 
+    /* 解析请求头中的参数 */
     while(*http_head != '\0'){
         lines = strtok_r(http_head, "\r\n", &http_head);
         name = strtok_r(lines, ": ", &value);

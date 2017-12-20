@@ -132,6 +132,7 @@ static void connect_read(struct http_request *request)
         return;
     }
 
+    /* 解析HTTP请求 */
     if (parse_http_request(request) < 0) {
         connect_close(request->efd, request->fd);
         http_request_free(request);
